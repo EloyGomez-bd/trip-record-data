@@ -96,7 +96,6 @@ def download_parquet_files(start_date, end_date, download_path):
         print(f"Error: {str(e)}")
 
 
-# Function to process Parquet data
 def process_parquet_data(folder_path):
     sdf_list = []
 
@@ -178,7 +177,6 @@ def data_quality_total_amount(sdf):
         return None, None, None
 
 
-# Function to parse command line arguments
 def parser():
 
     """Function to parse arguments on the script"""
