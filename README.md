@@ -2,6 +2,8 @@
 
 This project focuses on downloading and processing New York City yellow taxi trip data in Parquet format using Apache Spark and Python. The data is downloaded from an external source, processed, and data quality checks are performed before saving the results in a processed format.
 
+In this case, the decision has been made to first download all the raw files and then append them together to create a larger file for further processing (counting, ordering, filtering, etc.) with PySpark. Optimized processing, better parallelism and reduced metatada are some of the advantages of working with a single file. Also parquet format is optimized for larger datasets by using columnar storage.
+
 ## Requirements
 
 - Python 3.x
@@ -25,7 +27,9 @@ This project focuses on downloading and processing New York City yellow taxi tri
 
 4. This will download New York City yellow taxi trip data for the specified period in Parquet format.
 
-The downloaded data will be processed, and data quality checks will be performed. The processed results will be saved in the processed_data folder. Null data will be saved in processed_data/null_data, and data with negative amounts will be saved in processed_data/negative_amount.
+The downloaded data will be processed, and data quality checks will be performed. 
+These checks are based on whether the 'total_amount' column has null data, values less than zero, or if the data type is incorrect.
+The processed results will be saved in the processed_data folder. Null data will be saved in processed_data/null_data, and data with negative amounts will be saved in processed_data/negative_amount.
 
 Error logs and progress will be displayed in the console.
 
