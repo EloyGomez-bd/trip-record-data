@@ -43,6 +43,24 @@ def create_spark_session(session):
     return spark
 
 
+def remove_files_from_path(path):
+
+    """ Function to remove files from a folder"""
+
+    try:
+
+        file_list = os.listdir(path)
+
+        for file_name in file_list:
+            file_path = os.path.join(path, file_name)
+            os.remove(file_path)
+        print(f'Removing files from {path}')
+
+    except Exception as e:
+
+        print(f"Error: {str(e)}")
+
+
 def download_parquet_files(start_date, end_date, download_path):
 
     """Function that downloads the Parquet files of TLC trip record data
@@ -52,8 +70,7 @@ def download_parquet_files(start_date, end_date, download_path):
 
         os.makedirs(download_path, exist_ok=True)
 
-        # Delete files from other script executions
-        shutil.rmtree(download_path)
+        remove_files_from_path(download_path)
 
         date_range = pd.date_range(start_date, end_date)
         download_urls = [
@@ -106,7 +123,7 @@ def process_parquet_data(folder_path):
         sdf = sdf.orderBy(col("trip_distance").desc())
 
         # Calculate 10% of the total and reassign the initial sdf
-        top_10per_rows = int(final_sdf.count() * 0.10)
+        top_10per_rows = int(sdf.count() * 0.10)
         sdf = sdf.limit(top_10per_rows)
 
         return sdf
@@ -186,9 +203,12 @@ if __name__ == '__main__':
     null_check, negative_check, final_sdf = data_quality_total_amount(processed_data)
 
     final_sdf.write.mode("overwrite").parquet('processed_data')
+    print("Writing processed files")
 
-    null_check.write.mode("overwrite").parquet('processed_data/null_data')
+    if null_check is not None:
+        null_check.write.mode("overwrite").parquet('processed_data/null_data')
 
-    negative_check.write.mode("overwrite").parquet('processed_data/negative_amount')
+    if negative_check is not None:
+        negative_check.write.mode("overwrite").parquet('processed_data/negative_amount')
 
     spark.stop()
